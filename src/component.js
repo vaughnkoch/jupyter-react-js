@@ -1,8 +1,9 @@
 // Base component that handles comm messages and renders components to notebook cell
 import React from 'react';
 import autobind from 'autobind-decorator';
+import PropTypes from 'prop-types';
 
-const { bool, object } = React.PropTypes;
+const { bool, object } = PropTypes;
 
 const propTypes = {
   comm:       object.isRequired,
@@ -11,6 +12,9 @@ const propTypes = {
   save:       bool
 };
 
+
+// Note: Using babel-plugin-transform-class-properties breaks Component's message handling
+// for some reason which is related to autobinding the Component class to its functions.
 @autobind
 class Component extends React.Component {
 

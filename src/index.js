@@ -1,5 +1,5 @@
-const Output = require('./output');
-const Component = require('./component');
+import Output from './output'
+import Component from './component'
 
 import React from 'react';
 import ReactDom from 'react-dom';

@@ -1,46 +1,46 @@
-var webpack = require('webpack');
+// webpack v4
+var path = require('path');
 
-const babelSettings = {
-  plugins: [
-    'transform-flow-strip-types',
-    'add-module-exports',
-    'transform-regenerator',
-    'transform-decorators-legacy'
-  ],
-  presets: [ 'es2015', 'react', 'stage-1' ]
-};
+module.exports = {
+  'mode': 'development',
+
+  entry: {
+    index: './src/index.js'
+  },
+
+  output: {
+    path: path.join(__dirname, ''),
+    filename: '[name].js',
+    libraryTarget: 'amd'
+  },
+
+  devtool: 'source-map',
 
 
-module.exports = [
-    {
-      entry: './src/index.js',
-      output: {
-          filename: 'index.js',
-          path: './',
-          libraryTarget: 'amd'
-      },
-      externals: {
-        react: {
-            root: 'React',
-            commonjs2: 'react',
-            commonjs: 'react',
-            amd: 'react'
-        },
-        'react-dom': {
-            root: 'ReactDOM',
-            commonjs2: 'react-dom',
-            commonjs: 'react-dom',
-            amd: 'react-dom'
+  externals: {
+    react: {
+      root: 'React',
+      commonjs2: 'react',
+      commonjs: 'react',
+      amd: 'react'
+    },
+    'react-dom': {
+      root: 'ReactDOM',
+      commonjs2: 'react-dom',
+      commonjs: 'react-dom',
+      amd: 'react-dom'
+    }
+  },
+
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader'
         }
       },
-      module : {
-        loaders : [
-          {
-            test: /\.js?$/,
-            exclude: /(node_modules)/,
-            loaders: [`babel?${JSON.stringify( babelSettings )}`]
-          }
-        ]
-      }
-    }
-];
+    ]
+  }
+}
