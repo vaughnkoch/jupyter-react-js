@@ -2,7 +2,7 @@ import Output from './output'
 import Component from './component'
 
 import React from 'react';
-import ReactDom from 'react-dom';
+import ReactDOM from 'react-dom';
 
 function createOutputArea( cell, target ) {
   if ( !cell.react_output ) {
@@ -24,12 +24,12 @@ function init( Jupyter, events, commTarget, componentParams ) {
 
   requirejs([ "services/kernels/comm" ], function( Comm ) {
     /**
-     * handle_kernel 
+     * handle_kernel
      * registers comm targets with the kernel comm_manager
      * when new comms are open, renders a Parent component that takes over rendering of actual components
      */
     const handle_kernel = ( Jupyter, kernel ) => {
-      // register the target comm / listens for new comms 
+      // register the target comm / listens for new comms
       kernel.comm_manager.register_target( commTarget, ( comm, msg ) => {
         if ( msg[ 'msg_type' ] === 'comm_open' ) {
           const msg_id = msg.parent_header.msg_id;
@@ -38,15 +38,15 @@ function init( Jupyter, events, commTarget, componentParams ) {
           if ( !componentParams.element ) {
             createOutputArea( cell, commTarget );
             if ( cell.react_output && cell.react_output[ commTarget ] ) {
-              ReactDom.render( component, cell.react_output[ commTarget ].subarea );
+              ReactDOM.render( component, cell.react_output[ commTarget ].subarea );
             }
           } else {
-            ReactDom.render( component, componentParams.element ); 
+            ReactDOM.render( component, componentParams.element );
           }
         }
       });
 
-      // find any open comms and render components 
+      // find any open comms and render components
       kernel.comm_info( commTarget, commInfo => {
         const comms = Object.keys( commInfo[ 'content' ][ 'comms' ] );
         const md = Jupyter.notebook.metadata;
@@ -63,7 +63,7 @@ function init( Jupyter, events, commTarget, componentParams ) {
                 createOutputArea( cell, commTarget );
 
                 const component = React.createElement( Component,  { ...componentParams, comm: newComm, comm_msg: { content: { data: { module } } } } );
-                ReactDom.render( component, cell.react_output[ commTarget ].subarea );
+                ReactDOM.render( component, cell.react_output[ commTarget ].subarea );
               }
             });
         }
@@ -80,9 +80,23 @@ function init( Jupyter, events, commTarget, componentParams ) {
 
     events.on( 'delete.Cell', ( event, data ) => {
       if ( data.cell && data.cell.react_output ) {
+        ReactDOM.unmountComponentAtNode(data.cell.react_output[ commTarget ].subarea)
         data.cell.react_output[ commTarget ].clear();
       }
     });
+
+    events.on( 'clear_output.CodeCell', ( event, data ) => {
+      if ( data.cell && data.cell.react_output ) {
+
+        // React complains bitterly if we haven't unmounted a container before removing it from the dom
+        ReactDOM.unmountComponentAtNode(data.cell.react_output[ commTarget ].subarea)
+
+        data.cell.react_output[ commTarget ].clear();
+      }
+    });
+
+
+
   });
 };
 

@@ -1229,12 +1229,12 @@ function createOutputArea(cell, target) {
 function init(Jupyter, events, commTarget, componentParams) {
   requirejs(["services/kernels/comm"], function (Comm) {
     /**
-     * handle_kernel 
+     * handle_kernel
      * registers comm targets with the kernel comm_manager
      * when new comms are open, renders a Parent component that takes over rendering of actual components
      */
     var handle_kernel = function handle_kernel(Jupyter, kernel) {
-      // register the target comm / listens for new comms 
+      // register the target comm / listens for new comms
       kernel.comm_manager.register_target(commTarget, function (comm, msg) {
         if (msg['msg_type'] === 'comm_open') {
           var msg_id = msg.parent_header.msg_id;
@@ -1254,7 +1254,7 @@ function init(Jupyter, events, commTarget, componentParams) {
             react_dom__WEBPACK_IMPORTED_MODULE_3___default.a.render(component, componentParams.element);
           }
         }
-      }); // find any open comms and render components 
+      }); // find any open comms and render components
 
       kernel.comm_info(commTarget, function (commInfo) {
         var comms = Object.keys(commInfo['content']['comms']);
@@ -1298,6 +1298,14 @@ function init(Jupyter, events, commTarget, componentParams) {
     });
     events.on('delete.Cell', function (event, data) {
       if (data.cell && data.cell.react_output) {
+        react_dom__WEBPACK_IMPORTED_MODULE_3___default.a.unmountComponentAtNode(data.cell.react_output[commTarget].subarea);
+        data.cell.react_output[commTarget].clear();
+      }
+    });
+    events.on('clear_output.CodeCell', function (event, data) {
+      if (data.cell && data.cell.react_output) {
+        // React complains bitterly if we haven't unmounted a container before removing it from the dom
+        react_dom__WEBPACK_IMPORTED_MODULE_3___default.a.unmountComponentAtNode(data.cell.react_output[commTarget].subarea);
         data.cell.react_output[commTarget].clear();
       }
     });
